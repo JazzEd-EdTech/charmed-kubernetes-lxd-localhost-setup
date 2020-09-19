@@ -27,15 +27,15 @@ $ sudo snap install lxd
 ```
 Create `default` lxc storage pool:
 ```
-> lxc storage create default dir
+$ lxc storage create default dir
 ```
 Add the new lxc storage pool to `default` lxc profile:
 ```
-> lxc profile device add default root disk path=/ pool=default
+$ lxc profile device add default root disk path=/ pool=default
 ```
 Initialise lxd by running:
 ```
-> lxd init
+$ lxd init
 ```
 Use the following setting:
 ```
@@ -76,7 +76,7 @@ $ newgrp lxd
 ### Verify LXD storage
 Ensure that at least one storage pool is created for the `default` profile by running:
 ```
-> lxc storage list
+$ lxc storage list
 ```
 Example output:
 ```
@@ -87,7 +87,7 @@ Example output:
 +---------+-------------+--------+------------------------------------------------+---------+
 ```
 ```
-> lxc storage show default
+$ lxc storage show default
 ```
 Example output:
 ```
@@ -106,7 +106,7 @@ locations:
 
 For localhost deployments, LXD must have a network bridge defined. This is already setup during the lxd initialization step. Verify by running:
 ```
-> lxc network show lxdbr0
+$ lxc network show lxdbr0
 ```
 Example output:
 ```
@@ -130,11 +130,11 @@ lxc network set lxdbr0 <config> <value>
 ```
 Example:
 ```
-> lxc network set lxdbr0 ipv6.nat false
+$ lxc network set lxdbr0 ipv6.nat false
 ```
 Ensure that the lxd `default` profile is set to use `lxdbr0` as its bridged interface.
 ```
-> lxc profile show default
+$ lxc profile show default
 ```
 Example output:
 ```
@@ -157,19 +157,19 @@ To update any config, run `lxc profile edit default`.
 ### Test LXD setup
 Create an ubuntu container and execute `ping` command inside it to test network connectivity:
 ```
-> lxc launch ubuntu:16.04 u1
-> lxc exec u1 ping deakin.edu.au
+$ lxc launch ubuntu:16.04 u1
+$ lxc exec u1 ping deakin.edu.au
 ```
 If everything works, remove the container:
 ```
-> lxc stop u1
-> lxc delete u1
+$ lxc stop u1
+$ lxc delete u1
 ```
 ## Deploy Kubernetes cluster
 ### Conjure charmed kubernetes
 Summon the spell to setup Charmed Kubernetes by running:
 ```
-> conjure-up
+$ conjure-up
 ```
 From the command Line UI, select the `The Canonical Distribution of Kubernetes` spell and continue installation on `localhost` with default settings.
 > The spell will deploy charmed kubernetes using Juju application modelling tool. It allows you to deploy, configure, scale and operate your software on public and private clouds. https://juju.is/docs
@@ -183,7 +183,7 @@ lxc config device add <container_name> <device_name> proxy listen=tcp:<server_ip
 
 Example:
 ```
-> lxc config device add juju-8a5ef8-7 kubeapi-port proxy listen=tcp:192.168.122.168:6443 connect=tcp:10.99.16.56:443
+$ lxc config device add juju-8a5ef8-7 kubeapi-port proxy listen=tcp:192.168.122.168:6443 connect=tcp:10.99.16.56:443
 ```
 Verify the setting by running:
 ```
@@ -198,22 +198,22 @@ juju config kubeapi-load-balancer extra_sans="master.mydomain.com lb.mydomain.co
 ```
 Example:
 ```
-> juju config kubeapi-load-balancer extra_sans="192.168.122.32"
+$ juju config kubeapi-load-balancer extra_sans="192.168.122.32"
 ```
 ### Setup kubectl authorization for clients
 To provide kubectl access to the users, add `RBAC` and `Node` as the authorization mode.
 ```
-> juju config kubernetes-master authorization-mode="RBAC,Node"
+$ juju config kubernetes-master authorization-mode="RBAC,Node"
 ```
 #### Manage users
 To add a user, edit the `/root/cdk/basic_auth.csv` file in master. Note that the format for this file is `password,user,uid,"group1,group2,group3"`.
 ```
-> juju ssh kubernetes-master/0
+$ juju ssh kubernetes-master/0
 $ sudo nano /root/cdk/basic_auth.csv
 ```
 Restart the master after updating the file:
 ```
-> juju run-action kubernetes-master/0 restart
+$ juju run-action kubernetes-master/0 restart
 ```
 #### Create user roles
 https://kubernetes.io/docs/reference/access-authn-authz/rbac/#kubectl-create-role
@@ -222,7 +222,7 @@ kubectl create role <role-name> [options]
 ```
 Example:
 ```
-> kubectl create role pod-deployment-reader --verb=get --verb=list --verb=watch --resource=pods --resource=deployment
+$ kubectl create role pod-deployment-reader --verb=get --verb=list --verb=watch --resource=pods --resource=deployment
 ```
 #### Create user rolebinding
 https://kubernetes.io/docs/reference/access-authn-authz/rbac/#kubectl-create-rolebinding
@@ -231,14 +231,14 @@ kubectl create rolebinding <role-binding-name> [options]
 ```
 Example:
 ```
-> kubectl create rolebinding pod-reader-deployment-binding --role=pod-deployment-reader --user=bob --namespace=development
+$ kubectl create rolebinding pod-reader-deployment-binding --role=pod-deployment-reader --user=bob --namespace=development
 ```
 ## Scale deployment
 Information on cluster scaling is available in the official documentation: https://ubuntu.com/kubernetes/docs/scaling
 ## Tear down deployment
 Run the below juju command to list the controller and the model associated with it:
 ```
-> juju controllers
+$ juju controllers
 ``` 
 Run below juju commands to detroy the model and controller:
 ```
@@ -248,7 +248,7 @@ juju kill-controller <controller>
 Once the controller and model are safely removed, detach the storage pool from the lxc profile and delete it by running the following:
 ```
 $ printf 'config: {}\ndevices: {}' | lxc profile edit default
-> lxc storage delete default
+$ lxc storage delete default
 ```
 Remove redundant lxc profiles:
 ```
